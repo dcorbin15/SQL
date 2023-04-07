@@ -1,0 +1,121 @@
+-- Section 1--
+/* Select Statement Syntax
+
+Select [expression] FROM [table];
+To select all the columns in the table 
+*/
+select * from employees;
+
+
+/* Select specific columns in the table */
+Select first_name, last_name,salary
+from employees;
+
+/*Column names and table names are not case sensitive */
+select First_Name, LAST_name 
+fRom employees;
+
+SELECT first_name, last_name
+FROM employees;
+
+--short form for describe - It displays the structure of a table
+describe departments;
+desc employees;
+
+/* To filter the rows, the Where keyword is added to the end 
+    Select [expression] FROM [table]
+    where [expression];
+*/
+
+Select * from employees 
+where DEPARTMENT_ID = 20;
+
+select * from employees;
+select * from employees
+where employee_id = 101;
+
+
+/*******Arithmetic Expressions **********/
+/* Add (+), Subtract (-), Multiply (*), Divide (/) */
+
+Select last_name, salary, salary + 400 from employees;
+
+/**** Add an alias to the column name ****/
+Select last_name, salary, salary + 400 as Bonus from employees;
+Select last_name, salary, salary + 400 Bonus from employees;
+
+
+/*Column alias includes two words enclose it in double quotes. 
+Use when alias is case sensitive*/
+Select last_name, salary, salary + 400 "Salary with Bonus" from employees;
+
+
+
+/***Operator Precedence*****/
+/* When evaluating an arithmetic expression Oracle follows an operator precedence 
+ multiplication (*) and division (/) is done before addition(+) or subtraction (-)
+ When you have an expression with both * and /, evaluation is from left to right.
+ */
+ 
+ Select first_name, salary, salary*12 from Employees;
+ /*Increase the monthly salary by 100 and then find the annual salary */
+ /* Inaccuarate result because the expression 100 * 12 is going to be evaluated first 
+ and then the result is added to the salary */
+  Select first_name, salary, salary + 100 * 12 from Employees;
+  
+  
+  /**Accurate result for the above expression place brackets to force 
+  the expression salary + 100 to be evaluated first***/
+  Select first_name, salary, (salary + 100) * 12 from Employees;
+
+/* Numeric constant is a number that appears in a select statement */
+
+/* Concatination operator is used to combine strings */
+Select first_name || ' '|| last_name from employees;
+Select 'Welcome to class ' || first_name from employees;
+
+
+/**Literal strings**/
+/** Duplicate Rows --- Use Distinct clause to remove duplicates**************/
+Select department_id from departments;
+Select distinct department_id from employees;
+
+Select job_id from employees;  
+
+
+/*Values in the job_id column that were repeated is appearing only once.
+Distinct eliminates duplicates */
+select distinct job_id from employees;
+
+/* Distinct rows. Duplicates are eliminated */
+select department_id, job_id from employees;
+Select distinct department_id, job_id from employees;
+
+
+/* String literals. A string is a sequence of characters enclosed in single quotes. 
+When you use double quotes the string is interpreted as an identifier.
+Date and character literals are enclosed in single quotation marks (' ')
+*/
+
+Select first_name || ' is a ' || job_id as "JOB DESCRIPTION"
+from Employees;
+/***Quote Operator (q)**
+Include quotes as a part of the string
+Syntax: q'{....}' or q'[.....]' or q'(......)'
+*/
+
+Select department_name || q'[, it's assigned Manager id: ]'
+|| manager_id
+AS "Department and Manager"
+from Departments;
+
+Select first_name || q'{ has a meeting today at 10:00 am}'
+from Employees;
+
+/***********CHECK POINT*************/
+--1. Display all the rows and columns in the f_customers table
+
+--2. Display the food item number and description in f_food_items table
+
+--3. Display id, first_name and address in the f_customers table.
+-- Your query must display customer id instead of id in the column header of the output.
