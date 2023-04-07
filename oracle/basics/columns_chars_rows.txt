@@ -1,0 +1,188 @@
+/**********************Section 2 **************************/
+/*
+Section2 Objectives
+Section 2-1 Columns, Characters, and Rows
+Section 2-2 Limit Rows Selected
+Section 2-3 Comparison Operators
+*/
+
+/* Describe command to display the structure of the table */
+desc employees;
+
+select * from employees;
+/*Projection: Projecting the columns required in the display*/
+select first_name, department_id 
+FROM EMPLOYEES;
+
+/*Selection and projection: Selecting the number of rows 
+returned by the query using a where clause*/
+select first_name, department_id 
+FROM EMPLOYEES where department_id = 90;
+
+
+/* String literals. A string is a sequence of characters enclosed in single quotes. 
+When you use double quotes the string is interpreted as an identifier.
+Date and character literals are enclosed in single quotation marks (' ')
+*/
+
+Select first_name || ' is a ' || job_id as "JOB DESCRIPTION"
+from Employees;
+
+/***Quote Operator (q)**
+Include quotes as a part of the string
+Syntax: q'{....}' or q'[.....]' or q'(......)'
+*/
+
+Select department_name || q'[, it's assigned Manager id: ]'
+|| manager_id
+AS "Department and Manager"
+from Departments;
+
+Select first_name || q'{ has a meeting today at 10:00 am}'
+from Employees;
+
+/* Distinct rows. Duplicates are eliminated */
+select department_id from employees;
+
+/* Unique department id's in the employees table */
+Select distinct department_id from employees;
+
+/*Unique job_id **/
+select distinct job_id from employees;
+
+
+/* Default date format is DD-MON-YYYY or DD-MON-YY */
+
+/*Where clause OPerators are 
+Equal to (=), 
+greater than (>), 
+greater than equal to (>=), 
+less than (<),
+less than or equal to (<=), 
+Not equal to <>, !=
+
+Between.. AND.., 
+IN operator, 
+LIKE operator, 
+IS NULL operator 
+*/
+
+/* On numbers Salary is a numeric column and 15000 is a
+numeric constant */
+
+Select first_name, salary, HIRE_DATE 
+from Employees
+where Salary > 15000;
+
+
+/* Wrong usage, value Steven is a character string. 
+When referencing a character value you need to enclose the value in single quotes */
+
+Select * 
+from Employees
+where first_name = 'Steven';
+
+desc employees
+/* DD-MON-YYYY OR DD-MON-YY  */
+
+/* Does this give you the output? Yes or No */
+Select first_name, salary, HIRE_DATE 
+from Employees
+where first_name = 'STEVEN';
+
+/*Comparing string values the case must match */
+Select first_name, salary, HIRE_DATE 
+from Employees
+where first_name = 'Steven';
+
+/* Find employees that are hired after the 31st of DEC 1988 */
+/*Default Date format is DD-MON-YY */
+Select first_name, salary, HIRE_DATE 
+from Employees
+Where HIRE_DATE >= '31-DEC-1998';
+
+/* Between... AND... Operator Includes the higher and 
+lower limits */
+
+Select * from employees
+where salary between 12000 and 20000;
+
+/*Find employees who were hired between Jan 1st 1982 - Dec 31st 1994 */
+
+--OR -DD-MON-yyyy OR DD-MON-RRRR
+Select * from employees
+where hire_date between '01-JAN-1982' and '31-DEC-1994';
+
+select * from employees
+where hire_date = '1-JAN-1982' || '31-DEC-1983'
+
+select * from employees
+where department_id = 20;
+
+select * from employees
+where department_id = 90;
+
+select * from employees
+where department_id = 10;
+
+select * from employees
+where department_id IN (10, 90, 20);
+
+
+/*Query to find employees in department 10 and department 20, 30 */
+select * from employees 
+where last_name IN ('King', 'Kochhar', 'Hart')
+
+/* IN operator - Retrieve values from multiple departments say 10, 20, 30
+*/
+
+select * from employees
+where department_id IN (90,80,110);
+
+select * from employees
+where department_id = 15 OR department_id = 90 OR department_id = 110
+
+
+
+
+select * from employees
+where hire_date in ('21-MAY-91','29-JAN-97');
+
+
+/* LIKE operator is used when you are looking for a pattern */
+/*Find the list of employees whose name begins with the letter K
+  Not looking for an exact match but a pattern. 
+  LIKE operator uses a symbol such as % (represents 0 or more characters) or _ (represents a single character)
+*/
+
+Select * from employees 
+where last_name like 'K%';
+
+/* Find employees where the last_name has a 
+second letter 'a' */
+
+Select * from employees 
+where last_name like '_a%'; //123-393-2992//like '___-___-____'
+
+Select * from employees 
+where first_name like '_i%';
+
+/* IS NULL operator
+NULL value is an unknown or unavailbale value. It is not 0 or a space
+NOTE: Do not use the = operator when comparing a NULL value
+*/
+
+select * from employees;
+Select first_name, last_name, department_id, commission_pct
+from employees 
+where commission_pct IS NULL;
+
+Select first_name, last_name, department_id 
+from employees 
+where department_id IS NOT NULL;
+
+
+
+
+
+
