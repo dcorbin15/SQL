@@ -1,0 +1,415 @@
+/*******Chapter6 JOINS **************/
+/* JOINS is process of pulling information from more than one table
+Observe how the columns of employees and departments table are related
+using primary and foreign key concepts.
+Different types of JOINS:
+CROSS JOINS (Cartesian JOINS)
+EQUI JOINS or INNER JOINS
+NON-EQUI JOINS
+NATURAL JOINS
+OUTER JOINS
+SELF JOINS
+*/
+
+/*********SECTION 6-1 *******ANSI STANDARD *****/
+
+/********NATURAL JOIN *********/
+Join two tables based on common columns in the tables that have matching data types
+and names.
+*/
+
+/* Natural Joins
+Compares all of the common columns
+*/
+
+/* Join employees and jobs */
+desc EMPLOYEES;
+desc JOBS;
+Select EMPLOYEE_ID, FIRST_NAME, LAST_NAME, JOB_TITLE
+FROM EMPLOYEES NATURAL JOIN JOBS;
+/* Observe the departments and locations table. Identitfy the common columns */
+Select * from departments;
+select * from locations;
+
+--Example1
+Select department_id, department_name,
+location_id, city
+from departments
+NATURAL JOIN locations;
+
+/* NATURAL JOIN. Automatically joins all the columns that have a common name */
+select first_name, department_name
+from employees NATURAL JOIN departments;
+
+/****************CROSS JOINS*********************/
+select * from regions;
+select * from countries;
+
+/* 1999 Syntax is shown below. Results in a Cartesian product */
+select country_name, region_name
+from countries CROSS JOIN regions;
+Select last_name, department_name
+FROM employees CROSS JOIN departments;
+
+/**********SECTION 6-2*******************/
+--USING CLAUSE
+/*USING CLAUSE: If several columns have the same names but different data types,
+the NATURAL JOIN clause can be modified with the USING clause to specify the
+columns.
+Explicitly specify the column name that you would like to join the two tables.
+*/
+
+select first_name, last_name, department_id, department_name
+from employees JOIN departments USING (department_id);
+select first_name, last_name, department_id, department_name
+from employees NATURAL JOIN departments;
+Select l.city, d.department_name
+from locations l JOIN departments d
+USING (location_Id);
+
+/* Creating JOINS WITH ON CLAUSE
+Useful when doing a join where the column_names are different.
+*/
+
+select last_name, job_title
+FROM employees JOIN jobs
+ON (employees.job_id = jobs.job_id);
+select e.first_name, d.department_name
+from employees e JOIN departments d
+on e.department_id = d.department_id;
+SELECT last_name, salary, grade_level, lowest_sal, highest_sal
+FROM employees JOIN job_grades
+ON (salary between lowest_sal AND highest_sal)
+
+/*
+Difference between Natural join, using clause and on clause
+Natural join naturally joins two tables together without you specifying how
+based on common columns. Common columns should have same column name and same datatype 
+using clause: Joins the table together based on the common column name and the data type could be different.
+on clause: Joins two table together even if they have different column names and different datatypes can use a comparison operator
+*/
+
+/*Join 2 or more tables using ON or USING clause*/
+Select last_name, department_name AS "Department", city
+from employees JOIN departments USING (department_id)
+JOIN Locations USING(location_id);
+
+/*
+Display the employee_id, employee last_name, first_name, department_id,
+department name, manager id, location and country where the location id = 1700
+This involves joining 3 tables employees table, department table and locations table
+*/
+SELECT e.employee_id, e.last_name, e.first_name, e.department_id,
+d.department_name, d.manager_id, d.location_id, l.country_id
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+JOIN locations l ON d.location_id = l.location_id
+WHERE l.location_id = 1700;
+
+/* Display the employee name, job title, start date and end date of past jobs of all employees with commission percent null.
+Join 3 tables jobs, job_history and the employees table.
+*/
+SELECT E.FIRST_NAME, J.JOB_TITLE, JH.START_DATE, JH.END_DATE
+FROM JOB_HISTORY JH JOIN JOBS J USING (JOB_ID) JOIN EMPLOYEES E USING
+(EMPLOYEE_ID)
+WHERE COMMISSION_PCT IS NULL;
+
+/*****************SECTION 6-3- Inner versus Outer Joins**************/
+/*Using left outer join display employees who manage departments and
+also employees who do not manage any department
+*/
+
+/* Displays all rows whether or not the department id's match or not*/
+--Notice output Displays employees that do not have a department associated with
+them
+SELECT e.last_name, d.department_id, d.department_name
+FROM employees e
+LEFT OUTER JOIN departments d ON (e.department_id = d.department_id)
+select first_name, department_name
+from employees e LEFT OUTER JOIN departments d
+on d.manager_id = e.employee_id;
+Select studentname, classname
+from student LEFT OUTER JOIN course
+on student.classId = course.classId;
+
+/*Use right outer join to display names of employees along with names of the department and also names of departments that do not have any managers */
+/**** RIGHT OUTER JOIN ****/
+SELECT e.last_name, d.department_id, d.department_name
+FROM employees e
+RIGHT OUTER JOIN departments d ON (e.department_id = d.department_id)
+select first_name, department_name
+from employees e right outer join departments d
+on d.manager_id = e.employee_id;
+Select studentname, classname
+from student RIGHT OUTER JOIN course
+on student.classId = course.classId;
+
+/*****Full outer join ********/
+SELECT e.last_name, d.department_id, d.department_name
+FROM employees e
+FULL OUTER JOIN department d on (e.department_id = d.department_id)
+Select studentname, classname
+from student FULL OUTER JOIN course
+on student.classId = course.classId;
+
+/****************SECTION 6.4-SELF JOINS**********/
+/* Self join is joining a table to itself */
+Select worker.last_name emp, worker.employee_id,
+manager.last_name mgr
+from employees worker JOIN employees manager
+on (worker.manager_id = manager.employee_id);
+
+/***********************END JOINS ***************/
+/***********Section 7-1 ****************/
+/* Comparing Oracle Proprietary Joins with ANSI/ISO SQL: 1999
+__________________________________________________________
+Oracle Proprietary Join | ANSI/ISO SQL 1999
+Cartesian Product Cross Join
+Equijoin Natural JOIN
+JOIN USING clause
+JOIN ON clause (if the equality operator is
+used)
+NON-EQUI JOIN ON Clause
+___________________________________________________________ */
+
+/************Section 7-1 *************/
+/* Oracle proprietary Join */
+select country_name, region_name
+from countries, regions;
+
+/* 1999 Syntax is shown below. Results in a Cartesian product */
+select country_name, region_name
+from countries CROSS JOIN regions;
+
+/* Oracle Proprietery */
+select first_name, last_name, department_name
+from employees, departments
+where employees.department_id = departments.department_id;
+
+/*ANSI Standard */
+select first_name, last_name, department_name
+from employees e JOIN departments d On (e.department_id = d.department_id)
+where employees.department_id = departments.department_id;
+
+/* Find all employees who are IT Programmers and the department name that they work for*/
+Select e.first_name, e.last_name, e.job_id, d.department_name
+from employees e, departments d
+where job_id = 'IT_PROG'
+and e.department_id = d.department_id;
+select first_name, last_name, job_id, department_name
+from employees JOIN departments
+on (employees.department_id = departments.department_id)
+where job_id = 'IT_PROG'
+select first_name, e.department_id, department_name
+from employees e, departments d
+where e.department_id = d.department_id;
+
+/********Non equi-join ******/
+/*Non equi joins is used to return result from two or more tables where an exact join is not possible. (Something other than an equality operator) */
+Select e.last_name, e.salary, j.grade_level
+from employees e, job_grades j
+where e.salary between j.lowest_sal and j.highest_sal;
+Select e.last_name, e.salary, j.grade_level
+from employees e JOIN job_grades j
+on e.salary between j.lowest_sal and j.highest_sal;
+
+/***********OUTER JOIN***************/
+/*Using left outer join display employees who manage departments and also employees who do not manage any department */
+select first_name, department_name
+from employees e, departments d
+where d.manager_id = e.employee_id (+);
+--Notice output
+--Displays employees including those who do not have a department associated with them
+select first_name, department_name
+from employees e LEFT OUTER JOIN departments d
+on d.department_id = e.department_id;
+select first_name, department_name
+from departments d RIGHT OUTER JOIN employees e
+on e.department_id = d.department_id;
+select first_name, department_name
+from employees e LEFT OUTER JOIN departments d
+on d.manager_id = e.employee_id;
+Select studentname, classname
+from student LEFT OUTER JOIN course
+on student.classId = course.classId;
+
+/*Use right outer join to display names of employees along
+with names of the department and also names of departments
+that do not have any managers */
+select first_name, department_name
+from employees e, departments d
+where d.manager_id = e.employee_id (+);
+select first_name, department_name
+from employees e right outer join departments d
+on d.manager_id = e.employee_id;
+select first_name, department_name
+from employees e FULL outer join departments d
+on d.department_id = e.department_id;
+Select studentname, classname
+from student RIGHT OUTER JOIN course
+on student.classId = course.classId;
+
+/*****Full outer join ********/
+Select studentname, classname
+from student FULL OUTER JOIN course
+on student.classId = course.classId;
+/**************END JOIN ***************/
+
+/****SELF JOINS****/
+/* Self join is joining a table to itself */
+
+Select worker.last_name emp, worker.employee_id,
+manager.last_name mgr
+from employees worker JOIN employees manager
+on (worker.manager_id = manager.employee_id);
+Select worker.last_name emp, worker.employee_id,
+manager.last_name mgr
+from employees worker JOIN employees manager
+on (worker.manager_id = manager.employee_id);
+select employees.manager_id;
+
+/* JOINING MORE THAN TWO TABLES */
+/*
+Display the employee_id, employee last_name, first_name, department_id,
+department name, manager id, location and country where the location id = 1700
+This involves joining 3 tables employees table, department table and locations
+table
+*/
+SELECT e.employee_id, e.last_name, e.first_name, e.department_id,
+d.department_name, d.manager_id, d.location_id, l.country_id
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+JOIN locations l ON d.location_id = l.location_id
+WHERE l.location_id = 1700;
+
+/* Display the employee name, job title, start date and end date
+of past jobs of all employees with commission percent null.
+Join 3 tables jobs, job_history and the employees table.
+*/
+SELECT E.FIRST_NAME, J.JOB_TITLE, JH.START_DATE, JH.END_DATE
+FROM JOB_HISTORY JH JOIN JOBS J USING (JOB_ID) JOIN EMPLOYEES E USING
+(EMPLOYEE_ID)
+WHERE COMMISSION_PCT IS NULL;
+
+/*********Chapter6*****HIERARCHICAL RETRIEVAL ********/
+select * from employees;
+--Finding the Root Node
+-- Employees who do not have a manager
+Select employee_id, last_name, department_id,
+manager_id, salary, hire_date
+from employees
+where manager_id IS NULL;
+select employee_id,
+first_name, last_name,
+manager_id
+from employees;
+--To find a Node's immediate parent
+Select e.last_name "Employee", m.last_name "Manager"
+from employees e, employees m
+where e.manager_id = m.employee_id;
+--To include KING use left outer join
+Select e.last_name "Employee", m.last_name "Manager"
+from employees e LEFT OUTER JOIN employees m
+ON e.manager_id = m.employee_id;
+--Finding Leaf Nodes
+--Employees who are not managers
+Select * from employees
+where employee_id NOT IN
+(Select manager_id from employees
+where manager_id IS NOT NULL);
+
+/* WALKING THE TREE:
+SELECT [LEVEL], column, expr...
+FROM table
+[where condition(s)]
+[START WITH condition(s)]
+[CONNECT BY PRIOR condition(s)];
+START WITH condition:
+specifies the root row(s) of the hierarchy.
+All rows that satisfy the condition are considered root nodes.
+CONNECT BY condition: specifies the relationship between parent rows and child rows in the hierarchy.
+When you use the PRIOR operator in an expression in the CONNECT BY condition,
+the expression following the PRIOR keyword is evaluated for the parent row of the current row in the query.
+PRIOR is used to connect each row to its parent by connecting manager_id in the child to employee_id in the parent
+PRIOR identifies the parent row in the column.
+The PRIOR keyword can be on either side of the = operator.
+CONNECT BY PRIOR id=parentid will return different results to CONNECT BY PRIOR parentid=id
+*/
+
+select last_name, employee_id, manager_id
+from employees
+START WITH manager_id IS NULL
+Connect BY PRIOR employee_id = manager_id; --refers to the previous last name
+--in the structure
+--WALKING THE TREE FROM THE TOP TO BOTTOM
+select last_name || ' reports to ' ||
+PRIOR last_name "Employees Manager"
+FROM employees
+START WITH last_name = 'King'
+Connect BY PRIOR employee_id = manager_id;
+--Primary key = foreign key
+--PRIOR operator
+select last_name, employee_id, manager_id
+from employees
+START WITH manager_id IS NULL
+Connect BY manager_id = PRIOR employee_id;
+--START WITH a Kochhar as the root
+Select last_name, employee_id, manager_id
+from employees
+start with last_name = 'Kochhar'
+CONNECT BY manager_id = PRIOR employee_id;
+--Walking the Tree from Bottom Up
+Select employee_id, last_name, job_id,
+manager_id FROM employees
+START WITH employee_id = 202 --try 101, 202
+CONNECT BY PRIOR manager_id = employee_id;
+--LEVEL PSEUDOCOLUMN
+/*Oracle provides a pseudocolumn, LEVEL, to represent levels in a hierarchy tree.*/
+Select level, last_name, employee_id, manager_id
+from employees
+START WITH manager_id IS NULL
+connect BY manager_id = PRIOR employee_id;
+--Finding the number of Levels
+Select max(level)
+from employees
+START WITH manager_id IS NULL
+connect BY PRIOR employee_id = manager_id;
+--Finding the number of employees at each level
+Select LEVEL, COUNT(employee_id)
+from employees
+START WITH manager_id IS NULL
+connect BY PRIOR employee_id = manager_id
+GROUP by LEVEL;
+--Listing Records in Hierarchical Order
+--Example1
+Select LEVEL, LPAD(' ', 2*(LEVEL -1)) ||
+last_name "Employee",
+employee_id, manager_id
+FROM employees
+START WITH manager_id IS NULL
+CONNECT BY PRIOR employee_id = manager_id;
+--Example2
+Select LEVEL, LPAD(' ',2*(LEVEL - 1)) || last_name "Employee",
+employee_id, manager_id, salary
+from employees
+where salary > 3000
+START WITH manager_id IS NULL
+connect BY PRIOR employee_id = manager_id;
+--Listing the top levels of a Hierarchy
+select level,employee_id, last_name, department_id, manager_id,
+salary, hire_date from employees
+where level <= 2
+start with manager_id IS NULL
+connect BY PRIOR employee_id = manager_id;
+--FINDING THE PATH TO THE NODE
+Select SYS_CONNECT_BY_PATH(last_name,'--->')
+FROM employees
+START WITH manager_id IS NULL
+connect BY PRIOR employee_id = manager_id;
+--Practice 7.5 Node prune and Branch prune
+Select last_name, employee_id, manager_id
+FROM employees
+where job_id != 'IT_PROG' --Node Prune
+START WITH manager_id IS NULL
+Connect By prior employee_id = manager_id
+AND last_name != 'De Haan'
