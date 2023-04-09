@@ -1,0 +1,444 @@
+/* Constraints - restricts the values in a
+database or Business rules
+- Enforces rules on the data in a table
+whenever a row is inserted, updated or deleted.
+- Prevents deltion of rows if there are dependencies in other tables
+Data Integrity Constraints
+NOT NULL - prohibits a database value from
+being null
+UNIQUE
+PRIMARY KEY
+FOREIGN KEY
+CHECK
+*/
+/* Table with no constrainsts */
+drop table students;
+Create table STUDENTS
+(
+student_id number(10),
+first_name varchar2(20),
+last_name varchar2(20),
+phone_no number(10),
+course_name varchar2(20),
+tuition_fee number(10,2)
+);
+Insert into students values
+(1001, 'Ted','Wilson',6022921000,'java',1200);
+Insert into students values
+(0, 'Andrew','Smith',6023451020,'sql',1050);
+Insert into students values
+(1001, 'ABC','',602345,'XYZ',999999);
+select * from students
+Insert into students values
+(null, 'T','',null,'Accounting',11);
+commit;
+select * from students;
+drop table student1
+Create table STUDENT1
+(
+student_id number(10) primary key, --UNIQUE AND NOT NULL
+first_name varchar2(20) NOT NULL, --NOT NULL
+last_name varchar2(20),
+phone_no number(10) UNIQUE, --UNIQUE does not allow duplicates, but can take
+null values
+course_name varchar2(20) NOT NULL,
+tuition_fee number(10,2) NOT NULL
+);
+Insert into student1 values
+(1001, 'Ted','Wilson',6022921000,'java',1200);
+-- Insert duplicate values
+Insert into student1 values
+(1001, 'Andy','',602345123,'XYZ',1050); -- Notice the unique constraint violated
+number
+--Insert null values into a primary key column
+Insert into student1 values
+(null, 'Andy','',6023453000,'XYZ',1020);
+select * from student1
+-- Insert duplicate phone numbers
+Insert into student1 values
+(1003, 'JOe','Smith',6022921000,'Unix',1000);
+Insert into student1 values
+(1003, 'John','Smith',6023453000,'Java',1000); --
+--Notice the unique constraint violated number
+-- Insert null values in first_name
+Insert into student1 values
+(1003, null,null,6023453020,'Unix',1000);
+Insert into student1 values
+(1003,'Steve','Smith',6023453020,'XYZ',10);
+Select * from student1;
+/* Create table with check constraints */
+drop table STUDENT3
+Create table STUDENT3
+(
+student_id number(10) primary key, --UNIQUE AND NOT NULL
+first_name varchar2(20) NOT NULL, --NOT NULL
+last_name varchar2(20),
+phone_no number(10) UNIQUE, --UNIQUE does not allow duplicates, but
+can take null values
+course_name varchar2(20) NOT NULL,
+tuition_fee number(10,2) NOT NULL,
+check (student_id between 1001 and 5000),
+check (course_name IN ('SQL', 'JAVA', 'C++','PHP')),
+check (tuition_fee between 1000 and 3000)
+);
+-- Violates the course_name check constraint
+Insert into student3 values
+(1003,'Steve','Smith',6023453020,'XYZ',2000);
+Insert into student3 values
+(1003,'Steve','Smith',6023453020,'JAVA',2000);
+-- Violates the tuition_fee check constraint
+Insert into student3 values
+(1004,'Steve','Smith',6023453020,'PHP',20);
+Insert into student3 values
+(1004,'Steve','Smith',602345322,'PHP',2020);
+Insert into student3 values
+(1005,'Mary','Jones',null,'PHP',2000);
+Select * from student3;
+select *
+from user_constraints
+where table_name = 'STUDENT3';
+select constraint_name, constraint_type,
+table_name, search_condition
+from user_constraints
+where table_name = 'STUDENT3';
+drop table StUdent4
+Create table STUDENT4
+(
+student_id number(10)
+CONSTRAINT student4_student_id_pk primary key, --column level
+constraints
+first_name varchar2(20)
+CONSTRAINT student4_first_name_NN NOT NULL,
+last_name varchar2(20),
+phone_no number(10), --UNIQUE does not allow duplicates, but can
+take null values
+course_name varchar2(20)
+CONSTRAINT student4_course_name_NN NOT NULL,
+tuition_fee number(10,2)
+CONSTRAINT student4_tuition_fee_NN NOT NULL,
+check (student_id between 1001 and 5000),
+check (course_name IN ('SQL', 'JAVA', 'C++','PHP')),
+check (tuition_fee between 1000 and 3000),
+CONSTRAINT student4_phone_no_uk UNIQUE(phone_no) -- Table level
+constraint
+);
+desc user_constraints;
+select constraint_name, constraint_type,
+table_name, search_condition
+from user_constraints
+where table_name = 'STUDENT4';
+/* Referential Integrity constraint or Foreign Key constraint.
+Parent table - Course
+*/
+drop table course
+Create table Course
+(
+course_id number(10)
+CONSTRAINT course_course_id_pk PRIMARY KEY,
+course_name varchar2(20)
+CONSTRAINT course_course_name_NN NOT NULL,
+department varchar2(20)
+CONSTRAINT course_department_NN NOT NULL
+);
+Insert into course values(&id, '&name', '&dpt')
+Insert into Course Values(121,'SQL','BUSINESS');
+Insert into Course Values(101,'UNIX','Networking');
+Insert into Course Values(201,'Java','Software');
+Select * from course;
+drop table Student5
+Create table STUDENT5
+(
+student_id number(10) CONSTRAINT student5_student_id_pk primary key, --
+column level constraints
+first_name varchar2(20) CONSTRAINT student5_first_name_NN NOT NULL,
+last_name varchar2(20),
+phone_no number(10) unique , --UNIQUE does not allow duplicates,
+but can take null values
+course_id number(10),
+tuition_fee number(10,2) CONSTRAINT student5_tuition_fee_NN NOT NULL,
+check (student_id between 1001 and 5000),
+check (tuition_fee between 1000 and 3000),
+CONSTRAINT student5_tuition_fee_uk UNIQUE(tuition_fee),
+CONSTRAINT student5_course_id_fk FOREIGN KEY(course_id)
+REFERENCES course(course_id) ON DELETE SET NULL
+);
+select first_name, department_id from employees
+Insert into student5 values
+(1005,'Mary','Jones',4082348761,121,2000);
+select * from student5
+delete from course where course_id = 121
+/* Violates Referential Integrity constraint */
+select * from course
+Insert into student5 values
+(1002,'Sue','White',4081128761,150,2010);
+/********************************************/
+/*********FundamentalII Chapter2************/
+/* Make design changes to a table that already exists using DDL command ALTER
+ALTER table statement to:
+- ADD a new column
+- Modify an existing column
+- Define a default value for the new column
+- Drop a column
+*/
+/* Add a column
+ALTER TABLE table_name
+ADD (column datatype [DEFAULT expr]
+[, column datatype]...);
+*/
+select * from employees;
+drop table employee_test;
+create table employee_test as
+select * from employees;
+select * from employee_test;
+desc employee_test
+ALTER TABLE employee_test
+ADD (ADDRESS VARCHAR2(25));
+select * from employee_test;
+/* ADD MULTIPLE COLUMNS TO AN Existing table
+ALTER TABLE employee_test
+ADD (CELL_NO VARCHAR2(20),
+HOME_NO VARCHAR2(20),
+WORK_NO VARCHAR2(20));
+*/
+/* Modify an existing column size.
+What is the size of the column first_name?
+Increase the size of the column.
+*/
+ALTER TABLE Employee_test
+Modify (first_name varchar2(5));
+desc employee_test;
+/* Modify a numeric column size */
+ALTER TABLE EMPLOYEE_TEST
+MODIFY (COMMISSION_PCT NUMBER(4,2));
+desc employee_test;
+ALTER TABLE EMPLOYEE_TEST
+MODIFY (COMMISSION_PCT NUMBER(3,2));
+/* Reduce the size on a VARCHAR2 datatype */
+ALTER TABLE Employee_test
+Modify (first_name varchar2(20));
+ALTER TABLE Employee_test
+Modify (first_name varchar2(7));
+/* MOdify the column to add a default value */
+ALTER TABLE Employee_test
+Modify (job_id default 'Unassigned');
+Insert into employee_test
+(employee_id, last_name,email, salary, hire_date)
+values (39393, 'Smith','smith@edu.com', 5000, sysdate)
+select * from employee_test;
+/* Modify the the data type of a column */
+ALTER TABLE EMPLOYEE_TEST
+MODIFY (HIRE_DATE VARCHAR2(30));
+ALTER TABLE EMPLOYEE_TEST
+MODIFY (first_name char(20));
+DESC EMPLOYEE_TEST;
+/* RENAME A COLUMN:
+ALTER TABLE table_name
+RENAME COLUMN old_name to new_name;
+*/
+ALTER TABLE EMPLOYEE_TEST
+RENAME COLUMN ADDRESS TO EMP_ADDR;
+desc employee_test;
+drop table employee_test;
+rollback;
+/*DROP an EXISTING COLUMN - new feature of Oracle 9i */
+ALTER TABLE EMPLOYEE_TEST
+DROP column emp_addr;
+select * from test_data;
+desc TEST_DATA;
+select * from TEST_DATA;
+ALTER TABLE test_data
+ADD (employee_name varchar2(20));
+ALTER TABLE test_data
+ADD (addr varchar2(20));
+select * from test_data;
+/* SET UNUSED OPTION */
+ALTER TABLE test_data
+SET UNUSED COLUMN addr;
+select * from test_data;
+desc test_data;
+/* Query the dictionary view USER_UNUSED_COL_TABS to view unsused columns */
+SELECT * from USER_UNUSED_COL_TABS;
+ALTER TABLE test_data
+DROP column addr;
+ALTER TABLE test_data
+DROP column employee_name;
+ALTER TABLE test_data
+DROP UNUSED COLUMNS;
+desc test_data
+/*******ALTER TABLE statement **********/
+/* - TO ADD A CONSTRAINT
+- TO ENABLE A CONSTRAINT
+- TO DISABLE A CONSTRAINT
+- TO DROP A CONSTRAINT
+*/
+drop table CGCC_STUDENT;
+/*Create table Course
+(
+course_id number(10) CONSTRAINT course_course_id_pk PRIMARY KEY,
+course_name varchar2(20) CONSTRAINT course_course_name_NN NOT NULL,
+department varchar2(20) CONSTRAINT course_department_NN NOT NULL
+);*/
+Drop table CGCC_Course
+Create table CGCC_Course
+(
+course_id number(10),
+course_name varchar2(20),
+department varchar2(20)
+);
+ALTER TABLE CGCC_COURSE
+ADD CONSTRAINT course_id_pk PRIMARY KEY (course_id);
+ALTER TABLE CGCC_COURSE
+MODIFY (course_name NOT NULL,
+department NOT NULL);
+Insert into CGCC_Course Select * from Course1;
+select * from CGCC_Course;
+drop table CGCC_STUDENT;
+Create table CGCC_STUDENT
+(
+student_id number(10),
+first_name varchar2(20),
+last_name varchar2(20),
+phone_no number(10),
+course_id number(10),
+tuition_fee number(10,2)
+);
+select * from course;
+Select * from CGCC_STUDENT;
+desc CGCC_STUDENT
+INSERT INTO CGCC_STUDENT values
+(1001, 'Mary','Jones',4802932992,121,1200);
+INSERT INTO CGCC_STUDENT values
+(1002, 'John','Smith',4812422023,201,2000);
+INSERT INTO CGCC_STUDENT values
+(1003, 'Amy','Miller',6028493030,121,1200);
+SELECT * from CGCC_STUDENT;
+/* Create a Primary key using ALTER TABLE statement */
+ALTER TABLE CGCC_STUDENT
+ADD CONSTRAINT student_pk PRIMARY KEY(student_id);
+/* Add UNIQUE KEY using ALTER TABLE statement */
+ALTER TABLE CGCC_STUDENT
+ADD CONSTRAINT phone_uk UNIQUE(phone_no);
+/* ADD FOREIGN KEY using ALTER TABLE statement */
+ALTER TABLE CGCC_STUDENT
+ADD Constraint course_id_fk
+FOREIGN KEY(course_id)
+REFERENCES CGCC_COURSE(course_id);
+ALTER TABLE CGCC_STUDENT
+DROP CONSTRAINT course_id_fk;
+/* ON DELETE CASCADE. When data in the parent key is deleted,
+all rows in the child table that depend on the deleted parent key
+are also deleted.*/
+ALTER TABLE CGCC_STUDENT
+ADD Constraint course_id_fk
+FOREIGN KEY(course_id)
+REFERENCES CGCC_COURSE(course_id) ON DELETE CASCADE;
+select * from CGCC_course;
+select * from CGCC_STUDENT;
+delete from CGCC_course where course_id = 121;
+select * from CGCC_STUDENT;
+/*Cascading constraints
+*/
+drop table test1;
+CREATE TABLE test1(
+pk NUMBER primary key,
+rk NUMBER,
+col1 NUMBER,
+col2 NUMBER,
+CONSTRAINT fk_constraint FOREIGN KEY(rk)
+REFERENCES test1(pk),
+CONSTRAINT ck1 CHECK (pk > 0 and col1 > 0),
+CONSTRAINT ck2 CHECK (col2 > 0));
+ALTER TABLE test1 DROP (pk); --pk is the parent key
+ALTER TABLE test1 DROP (col1); --col1 is reference by multicolumn constraint ck1
+ALTER TABLE test1 DROP (pk) CASCADE CONSTRAINT;
+/**Example**/
+ALTER TABLE CGCC_STUDENT
+DROP COLUMN STUDENT_ID CASCADE CONSTRAINTS;
+ALTER TABLE CGCC_COURSE
+DROP COLUMN COURSE_ID CASCADE CONSTRAINTS;
+select * from CGCC_STUDENT;
+/* DISABLING CONSTRAINTS */
+ALTER TABLE CGCC_STUDENT
+DISABLE CONSTRAINT phone_uk;
+ALTER TABLE CGCC_STUDENT
+ENABLE CONSTRAINT phone_uk;
+/* Add a FOREIGN KEY constraint to
+CGCC_STUDENT TABLE */
+select * from CGCC_STUDENT;
+---
+/* DEFERRABLE OR NOT DEFERRABLE
+INITIALLY DEFERRED or INITIALLY IMMEDIATE
+NOT DEFERRABLE is default, and means
+that every time a database modification
+statement is executed,
+the constraint is checked immediately afterwards,
+if the modification could violate the
+foreign-key constraint.
+However, if we declare a constraint to be
+DEFERRABLE,
+then we have the option of having it wait until
+a transaction is complete
+before checking the constraint.
+We follow the keyword DEFERRABLE as either INITIALLY DEFERRED or INITIALLY
+IMMEDIATE.
+In the former case, checking will be deferred to just before each transaction
+commits.
+In the latter case, the check will be made immediately after each statement.
+Why use deferred integrity constraints?
+In Oracle, users have no way of entering data into a child table
+before entering the matching data into the parent table directly.
+However, users can have the option of inserting data into a child table
+before inserting its matching data into the parent table
+by simply deferring the foreign-key constraint.
+Deferring the integrity checking until after the data
+has loaded can save considerable time when dealing
+with large volumes of data being inserted into tables.
+Many design issues can easily be
+resolved by deferring all integrity constraints until the time of the commit.
+*/
+select * from test2;
+drop table test2;
+CREATE table test2
+( x int constraint
+check_x CHECK (x > 0) deferrable initially immediate,
+y int constraint
+check_y CHECK (y > 0) deferrable initially deferred
+);
+INSERT into test2 values (1, 1);
+commit;
+/* When both constraints are satisfied, the rows are inserted without error.
+If the insert statement violates the check_x constraint, the constraint gets
+verified immediately. */
+INSERT into test2 values(-1,1);
+/*
+If the insert statement violates the check_y constraint, the constraint
+will not be verified until COMMIT is issued.
+*/
+INSERT INTO test2 values(1,-1);
+select * from test2;
+commit;
+select * from CGCC_Course;
+/********UPDATE TABLE using DEFERRABLE ***/
+drop table parent_table;
+create table parent_table
+(p_id number(10) primary key, name varchar2(20));
+drop table child_table;
+create table child_table
+(ch_id number(10), name varchar2(20),
+p_id number,
+CONSTRAINT p_id_fk FOREIGN KEY(p_id) REFERENCES parent_table(p_id)
+deferrable initially deferred
+);
+Insert into parent_table values(10,'P_Name1');
+Insert into parent_table values(20,'P_Name2');
+Insert into parent_table values(30,'P_Name3');
+Insert into child_table values(100,'C_Name1', 10);
+Insert into child_table values(200,'C_Name2',10);
+Insert into child_table values(300,'C_Name3',20);
+Insert into child_table values(400,'C_Name4',20);
+Insert into child_table values(500,'C_Name5',20);
+Update parent_table set p_id = 90 where name='P_Name1';
+Update child_table set p_id = 90 where p_id = 10;
+commit;
+select * from parent_table;
+select * from child_table;
