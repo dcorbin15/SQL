@@ -1,0 +1,293 @@
+/*************10-1 Fundamentals of Subqueries ******/
+/* Subqueries are queries within queries.
+ They are also called nested queries.
+ "Who has a salary greater than Grant?"
+*/
+
+/* Find the employees in department 50 */
+   select * from employees
+   where department_id = 50;
+
+/* Find the details of employees who belong to the same department as King.
+   First find the department Trenna Rajs belongs to.
+   Next, find the employees that belong to the department returned by the query
+*/
+Select department_id from employees
+where first_name = 'Trenna' and last_name = 'Rajs';
+select * from employees
+where department_id = 50;
+select department_id from employees
+where last_name = 'King'
+select * from employees
+where department_id = 90
+
+/* In the above example the result of the first query is used as input to the second query.
+   The inner query is executed first. The output/result of the inner query is used as the input to the outer query.
+*/
+
+/***** Subquery syntax *****/
+Select columns from table
+where column_name operator ----> Main query or outer query
+(Select column/columns from table
+where ....) ----> Subquery or inner query
+select * from employees
+where department_id =
+(Select department_id from employees
+where first_name = 'Trenna' and last_name = 'Rajs')
+-- Note to enclose subqueries in parentheses
+-- Place the subqueries on the right side of the comparison condition
+
+/* Find the department details of employee number 101 */
+select department_id from employees
+where employee_id = 101;
+select * from departments
+where department_id = 90;
+Select * from departments
+where department_id =
+(Select department_id from employees
+where employee_id = 101);
+select * from departments;
+select * from employees
+where department_id = (select department_id from departments where
+department_name = 'Sales')
+
+/* Subquery and NULL's
+If a subquery returns a null value or no rows, the outer query takes the results of the subquery (null) and uses this result in its WHERE clause. */
+select * from employees where department_id IS NULL
+Select last_name from employees
+where department_id =
+(Select department_id from employees
+where last_name = 'Grant');
+select * from employees
+where department_id IS NULL
+Select last_name from employees
+where department_id =
+(Select department_id from employees
+where last_name = 'grant');
+
+/************SINGLE ROW SUBQUERIES **************/
+/* There are single row subqueries and multiple row subqueries
+When the subquery returns one row it is a single row sub query.
+The operators that can be used with single row sub queries are
+= Equal to
+<> Not Equal to
+> Greater than
+>= Greater than or equal to
+< Less than
+<= Less than or equal to
+*/
+
+/* Find details of departments where the location is not the same location where department 110 is located */
+Select * from departments
+where location_id NOT IN (Select location_id
+from departments
+where department_id = 110);
+
+/*Find employees who earn more than employee 141*/
+select * from employees where salary >
+(select salary
+from employees where employee_id = 141)
+Select first_name, salary
+from employees
+where salary > (Select salary
+from employees
+where employee_id = 141 )
+
+/* Find details of employees where the salary is greater thanthe minimum salary earned by an employee.*/
+select * from employees where salary >
+(select min(salary) from employees)
+select *
+from employees
+where salary > (Select min(salary) from employees);
+
+/*Find details of employees who wereemployeed on the same day or after employee 205 was hired */
+Select * from employees
+where hire_date >=
+(Select hire_date from employees
+where employee_id = 205);
+
+/* Use of group functions in sub queries */
+/*Find employees whose salary is equal to minimum salary */
+SELECT first_name, salary, department_id
+FROM employees
+WHERE salary = (SELECT MIN(salary)
+FROM employees);
+
+/* Display employees whose salary is greater than the average salary in the employee tabe */
+Select first_name, salary
+from employees
+where salary > (Select AVG(salary) from employees);
+
+/*Having clause with Subqueries, Find all the departments that have a minimum salary greater than that of department 50. */
+Select department_id, MIN(salary)
+from employees
+group by department_id
+having MIN(salary) > (Select MIN(salary)
+from employees
+where department_id = 50)
+
+/* Find department details where the location is same as the location where country_id is 'UK' */
+select * from locations;
+Select department_id, department_name, location_id
+from departments
+where location_id = (Select location_id
+from locations
+where country_id = 'US');
+
+/* Subqueries from Different Tables */
+Select last_name, job_id, salary, department_id
+from employees
+where job_id = (Select job_id from employees
+where employee_id = 141)
+AND department_id =
+(Select department_id from
+departments where location_id = 1500);
+
+/**************10-3 MULTIPLE ROW SUBQUERY*********************/
+/*Find employees whose salary is equal to the salary of any employee in department 20 */
+select last_name, salary from employees
+where salary IN
+(select salary from employees
+where department_id = 20);
+Select first_name, last_name
+from employees where salary IN (Select salary from
+employees where
+department_id = 20);
+
+/* The above query displays an error. When the inner query returns multiple rows then you must use a multiple row operators
+Multiple Row operators
+IN Equal to any value returned by the subquery
+ANY Compare value to each value returned by the subquery. It is used usually as > ANY or <ANY
+>ANY: Returns all rows greater than the minimum value returned by the subquery.
+<ANY: Returns all rows less than the maximum value returned by the subquery.
+ALL Compare value to every value returned by the subquery. It is used usually as >ALL or <ALL
+>ALL: Returns all rows greater than the maximum value returned by the subquery.
+<ALL: Returns all rows less than the minimum value returned by the subquery.
+*/
+
+Select department_id, department_name, location_id
+from departments
+where location_id IN (Select location_id
+from locations
+where country_id = 'US');
+
+/* Example of >ALL. */
+/* Find salary of employees who belong to department 20 */
+Select salary from employees
+where department_id = 20;
+
+/*
+>ANY: Returns all rows greater than the minimum value returned by the subquery.
+Write a query to display the salary of employees who earn a salary greater than the least paid employee in department 20
+*/
+
+Select first_name, last_name, salary
+from employees
+where salary >ANY (Select salary from employees
+where department_id = 20);
+
+/*
+<ANY: Returns all rows less than the maximum valuereturned by the subquery. */
+Select first_name, last_name, salary
+from employees
+where salary <ANY (Select salary from employees
+where department_id = 20);
+
+/*>
+ALL: Returns all rows greater than the maximum value returned by the subquery.
+Display the details of employees who earn a salary greater than the highest paid employee in department 20
+*/
+Select first_name, last_name, salary
+from employees
+where salary >ALL (Select salary from employees
+where department_id = 20);
+
+/*
+<ALL: Returns all rows less than the minimum value returned by the subquery.
+Find the details of all the employees who earn a salary less than the least paid employee in department 20
+*/
+Select first_name, last_name, salary
+from employees
+where salary >ALL (Select salary from employees
+where department_id = 20);
+
+/*Nested Sub queries */
+/* Display the city of employee whose employee id is 102 */
+SELECT CITY FROM LOCATIONS WHERE LOCATION_ID =
+(SELECT LOCATION_ID FROM DEPARTMENTS
+WHERE DEPARTMENT_ID =
+(SELECT DEPARTMENT_ID FROM
+EMPLOYEES WHERE EMPLOYEE_ID=102)
+)
+
+/* Null values in a Subquery */
+/* If the output of the subquery is a NULL.
+A NULL means unknown, so any
+comparison or opertation with a NULL value is a NULL */
+Select manager_id from employees;
+Select e.last_name
+from employees e
+where e.employee_id IN
+(Select m.manager_id from employees m);
+Select manager_id from employees;
+Select e.last_name
+from employees e
+where e.employee_id NOT IN
+(Select m.manager_id from employees m
+WHERE manager_id is NOT NULL);
+
+/*************************10-3 Multiple Row Subqueries************************/
+/* Multiple column subqueries
+If you want to compare two or more columns, you must write a compound where clause using logical operators.
+By using multiple-column subqueries, you can combine duplicate where conditions into a single where clause.
+*/
+
+/* Find employees who have the same salary andwork in the same department as employee_id = 101 */
+select * from employees;
+select salary, department_id from employees where employee_id = 101;
+SELECT employee_id, first_name
+FROM Employees
+WHERE (salary, department_id) =
+(SELECT salary, department_id
+FROM Employees WHERE employee_id = 101);
+
+/*In the above example, the subquery first retrieves the salary anddepartment_id
+values where the employee_id is 101. These values are compared with thesalary
+column and the department_id column for each row in the Employees table.
+If both the values match, the row is dispalyed.
+*/
+
+/*Find employees who have the same manager and work in the same department as employees with employee_id 101 or 174 */
+select employee_id, manager_id, department_id
+from employees
+where (manager_id, department_id) IN
+(Select manager_id, department_id
+from employees
+where employee_id IN (101, 174))
+AND employee_id NOT IN (101, 174);
+
+/*Non pairwise comparison subquery */
+/*Find the employees who are managed by the same manager as the employees with employee_id 107 and work in the same department as employees with employee_id 107 */
+SELECT employee_id,
+manager_id,
+department_id
+FROM employees
+WHERE manager_id IN
+(SELECT manager_id FROM employees WHERE employee_id = 107
+)
+AND department_id IN
+(SELECT department_id FROM employees WHERE employee_id = 107
+);
+
+/************** 10-4 Correlated SubQuery********************/
+/* Correlated Subqueries */
+/* Correlated sub query is used for row by row processing. 
+The correlated sub query is executed once for each row of the main query. */
+select * from employees
+--Find all employees who earn more than
+--the average salary in their department.
+Find the average salary for each employees department
+Select last_name, salary, department_id
+from employees e
+where salary > (Select AVG(salary) from employees
+where department_id = e.department_id);
