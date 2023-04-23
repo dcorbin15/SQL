@@ -2389,16 +2389,18 @@ ALTER TABLE job_history ADD FOREIGN KEY (department_id) REFERENCES departments(d
                         /* ************** TEST DATABASE ****************
                            *********************************************  */
 
-SELECT * FROM actors;
-SELECT * FROM movies;
-SELECT * FROM star_billings;
-SELECT * FROM media;
-SELECT * FROM customers;
-SELECT * FROM rental_history;
+SELECT * FROM countries;
+SELECT * FROM departments;
+SELECT * FROM employees;
+SELECT * FROM job_history;
+SELECT * FROM jobs;
+SELECT * FROM locations;
+SELECT * FROM regions;
 
-DESCRIBE actors;
-DESCRIBE movies;
-DESCRIBE star_billings;
-DESCRIBE media;
-DESCRIBE customers;
-DESCRIBE rental_history;
+DESCRIBE countries;
+DESCRIBE departments;
+DESCRIBE employees;
+DESCRIBE job_history;
+DESCRIBE jobs;
+DESCRIBE locations;
+DESCRIBE regions;
