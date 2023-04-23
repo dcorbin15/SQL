@@ -1,0 +1,413 @@
+/*
+Darius Corbin 
+Final Project 
+04/20/2023
+Video Store Project
+*/ 
+
+                        /* **************************** Final Project  **************************** 
+                           ************************************************************************  */ 
+/* INSTRUCTIONS: 
+    STEP 1: [NO CREATE DB privlieges] Instead drop all planned VIEWS, TABLES, SEQUENCES, AND SYNONYM(S)
+    STEP 2: CREATE TABLES
+    STEP 3: CREATE VIEWS
+    STEP 4: CREATE SEQUENCES
+    STEP 5: INSERT DATA INTO TABLES
+    STEP 6: CREATE INDEX
+    STEP 7: CREATE SYNONYM
+    STEP 8: TEST DATABASE
+    
+  SUMMARY:
+  The purpose of this database is to apply SQL concepts to create a Functional Database. This final project consists of:
+  Creating Tables, Adding Constraints, Creating Views, Creating Sequences, Adding data to tables, Creating Indexes, Creating Synonyms
+  and Testing the Database.
+*/ 
+
+--Drop view if exist
+DROP VIEW title_unavail;
+ -- drop the synonym
+DROP SYNONYM  TAB;
+--Drop all tables if they exist
+DROP TABLE rental_history PURGE;
+DROP TABLE customers PURGE;
+DROP TABLE media PURGE;
+DROP TABLE star_billings PURGE;
+DROP TABLE movies PURGE;
+DROP TABLE actors PURGE;
+--drop the sequences
+DROP SEQUENCE customer_id_seq;
+DROP SEQUENCE title_id_seq;
+DROP SEQUENCE media_id_seq;
+DROP SEQUENCE actor_id_seq;
+/*----------------------------------------------------------------------------------------------------------------------------------------------------*/ 
+-- CREATE TABLE ACTORS
+CREATE TABLE  actors(
+                actor_id   NUMBER(20,0) CONSTRAINT atr_atr_id_pk PRIMARY KEY ,
+                first_name VARCHAR2(25) CONSTRAINT atr_fit_nae_nn NOT NULL ,
+                last_name  VARCHAR2(25) CONSTRAINT atr_lat_nae_nn NOT NULL ,
+                birth_date DATE CONSTRAINT atr_bih_dae_nn NOT NULL
+   );
+
+-- CREATE TABLE MOVIES
+CREATE TABLE  movies ( 
+                title_id     NUMBER(20,0) CONSTRAINT mie_tte_id_pk PRIMARY KEY ,
+                title        VARCHAR2(60) CONSTRAINT mie_tte_nn NOT NULL ,
+                description  VARCHAR2(400) CONSTRAINT mie_dsn_nn NOT NULL ,
+                rating       VARCHAR2(4) CONSTRAINT mie_rig_chk CHECK (rating  IN ('G', 'PG', 'R', 'PG13')),
+                category     VARCHAR2(20) CONSTRAINT mie_cey_chk CHECK ( category  IN ('DRAMA', 'COMEDY', 'ACTION', 'CHILD', 'SCIFI', 'DOCUMENTARY')),           
+                release_date DATE CONSTRAINT mie_rle_dae_nn NOT NULL
+   ); 
+
+CREATE TABLE  star_billings (
+                actor_id NUMBER(20,0) CONSTRAINT str_big_atr_id_fk REFERENCES actors(actor_id) ,
+                title_id NUMBER(10,0) CONSTRAINT str_big_tte_id_fk REFERENCES movies(title_id) ,
+                comments VARCHAR2(40),
+                CONSTRAINT str_big_atr_id_tte_id_pk PRIMARY KEY (actor_id, title_id)
+   );
+
+-- CREATE TABLE MEDIA
+CREATE TABLE  media (
+                media_id  NUMBER(20,0) CONSTRAINT mda_mda_id_pk PRIMARY KEY ,
+                format    VARCHAR2(3) CONSTRAINT mda_fmt_nn NOT NULL ,
+                title_id  NUMBER(25,0) CONSTRAINT mda_tte_id_nn NOT NULL  ,
+                CONSTRAINT mda_tte_id_fk FOREIGN KEY(title_id) REFERENCES movies(title_id)
+   );
+
+-- CREATE TABLE CUSTOMERS
+CREATE TABLE  customers(
+                customer_id NUMBER(10,0)  CONSTRAINT customer_id_pk PRIMARY KEY ,
+                last_name   VARCHAR2(25)  CONSTRAINT ctr_lat_nae_nn NOT NULL ,
+                first_name  VARCHAR2(25)  CONSTRAINT ctr_fit_nae_nn NOT NULL ,
+                home_phone  VARCHAR2(15)  CONSTRAINT ctr_hoe_phe_nn NOT NULL ,
+                address     VARCHAR2(100) CONSTRAINT ctr_ads_nn NOT NULL ,
+                city        VARCHAR2(30)  CONSTRAINT ctr_cyy_nn NOT NULL ,
+                state       VARCHAR2(2)   CONSTRAINT ctr_ste_nn NOT NULL ,
+                email       VARCHAR2(25),
+                cell_phone  VARCHAR2(15)
+   );
+   
+CREATE TABLE  rental_history (
+                media_id    NUMBER(10,0) CONSTRAINT ral_hty_mda_id_fk REFERENCES media(media_id) ,
+                rental_date DATE DEFAULT SYSDATE ,
+                customer_id NUMBER(10,0) CONSTRAINT ral_hty_ctr_id_nn NOT NULL ,
+                return_date DATE ,
+                CONSTRAINT ral_hty_ctr_id_fk FOREIGN KEY(customer_id) REFERENCES customers(customer_id),
+                CONSTRAINT ral_hty_mda_id_ral_dae_pk PRIMARY KEY (media_id, rental_date)
+   ); 
+   
+/*----------------------------------------------------------------------------------------------------------------------------------------------------*/
+                        /* ************** CREATE VIEW ***************
+                           ***********************************************  */
+CREATE OR REPLACE VIEW title_unavail ("movie title", "media id") AS
+SELECT movies.title,  media.media_id
+FROM rental_history INNER JOIN  media ON rental_history.media_id = media.media_id INNER JOIN movies ON media.title_id = movies.title_id
+WHERE rental_history.return_date IS NULL
+WITH READ ONLY;
+/*----------------------------------------------------------------------------------------------------------------------------------------------------*/ 
+                        /* ************** CREATE SEQUENCES ***************
+                           ***********************************************  */ 
+CREATE SEQUENCE title_id_seq;
+
+CREATE SEQUENCE customer_id_seq
+START WITH 201;
+
+CREATE SEQUENCE media_id_seq
+START WITH 10;
+
+CREATE SEQUENCE actor_id_seq
+START WITH 1001;
+/*----------------------------------------------------------------------------------------------------------------------------------------------------*/ 
+                        /* ************** INSERT DATA ***************
+                           ******************************************  */
+--INSERT ACTORS                            
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)
+    VALUES (actor_id_seq.NEXTVAL, 'Boseman', 'Chadwick', TO_DATE('18-DEC-1963','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)
+    VALUES (actor_id_seq.NEXTVAL, 'DiCaprio', 'Leonardo', TO_DATE('11-NOV-1974','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Myers', 'Mike', TO_DATE('25-MAY-1963','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Cumberbatch', 'Benedict', TO_DATE('19-JUL-1976','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Hart', 'Kevin', TO_DATE('19-JUL-1976','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Hanks', 'Tom', TO_DATE('06-JUL-1979','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Reilly', 'John', TO_DATE('09-JUL-1956','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Foxx', 'Jamie', TO_DATE('24-MAY-1965','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Ford', 'Harrison', TO_DATE('13-DEC-1967','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Leto', 'Jared', TO_DATE('26-DEC-1971','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Eisenberg', 'Jesse', TO_DATE('05-OCT-1983','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'LaBeouf', 'Shia', TO_DATE('11-JUN-1986','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Smith', 'Will', TO_DATE('25-SEP-1968','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Harrelson', 'Woody', TO_DATE('23-JUL-1961','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Bale', 'Christian', TO_DATE('30-JAN-1974','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Worthington', 'Sam', TO_DATE('02-AUG-1976','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Wahlberg', 'Mark', TO_DATE('05-JUN-1971','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)    
+    VALUES (actor_id_seq.NEXTVAL, 'Carell', 'Steve', TO_DATE('16-AUG-1962','DD-MON-YYYY'));
+
+INSERT INTO actors(actor_id, first_name, last_name, birth_date)     
+    VALUES (actor_id_seq.NEXTVAL, 'Lawrence', 'Jennifer', TO_DATE('15-AUG-1990','DD-MON-YYYY'));
+
+/*----------------------------------------------------------------------------------------------------------------*/ 
+--INSERT MOVIES
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Black Panther', 'A Marvel superhero film about TChalla, the king and protector of the fictional African nation of Wakanda, who must defend his people and the world against a dangerous enemy.', 'PG13', 'ACTION', TO_DATE('16/02/2018','DD/MM/YYYY')  );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Titanic', 'A young aristocrat and a poor artist fall in love aboard the doomed ship. ', 'PG13', 'DRAMA', TO_DATE('19/12/1997','DD/MM/YYYY') );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Shrek', 'An ogre embarks on a quest to rescue a princess with the help of a talkative donkey. ', 'PG', 'COMEDY', TO_DATE('18/04/2001','DD/MM/YYYY') );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Doctor Strange', 'A brilliant surgeon seeks healing after a car accident and discovers a world of magic. ', 'PG13', 'ACTION', TO_DATE('04/11/2016','DD/MM/YYYY') );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Central Intelligence', 'A former high school outcast becomes a CIA agent and recruits his former bully for a mission. ', 'PG13', 'COMEDY', TO_DATE('17/06/2016','DD/MM/YYYY') );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Forrest Gump', 'A man with a low IQ navigates historic events and forms relationships along the way. ', 'PG13', 'COMEDY', TO_DATE('06/07/1994','DD/MM/YYYY') );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Step Brothers', 'Two immature stepbrothers become roommates and wreak havoc on their parents lives. ', 'R', 'COMEDY', TO_DATE('25/07/2008','DD/MM/YYYY') );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Spiderman:Homecoming', 'A young Peter Parker tries to balance high school and being a superhero under Iron Mans guidance. ', 'PG13', 'ACTION', TO_DATE('07/07/2017','DD/MM/YYYY') ); 
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Django Unchained', 'A freed slave and a bounty hunter team up to rescue the formers wife from a brutal plantation owner. ', 'R', 'DRAMA', TO_DATE('25/12/2012','DD/MM/YYYY') );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Indiana Jones', 'An adventurous archaeologist battles Nazis and supernatural foes in search of legendary artifacts. ', 'PG13', 'ACTION', TO_DATE('22/05/2008','DD/MM/YYYY') ); 
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Suicide Squad', 'A group of supervillains is recruited to complete a dangerous mission for the government. ', 'PG13', 'ACTION', TO_DATE('05/08/2016','DD/MM/YYYY') ); 
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'The Social Network',  'The story of the founding of Facebook and the legal battles that followed. ', 'PG13', 'DOCUMENTARY', TO_DATE('01/10/2010','DD/MM/YYYY') );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Transformers',  'Aliens come to Earth in search of a powerful artifact and battle it out with giant robots.', 'PG13', 'CHILD', TO_DATE('03/07/2007','DD/MM/YYYY') );
+ 
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'I, Robot', 'A detective investigates a crime in a world where robots coexist with humans. ', 'PG13', 'SCIFI', TO_DATE('15/07/2004','DD/MM/YYYY') );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Zombieland', 'A group of survivors navigate a zombie apocalypse in search of safety. ', 'R', 'COMEDY' , TO_DATE('02/10/2009','DD/MM/YYYY') );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'The Dark Knight', 'Batman must stop the Joker from wreaking havoc on Gotham City. ', 'PG13', 'ACTION' , TO_DATE('18/07/2008','DD/MM/YYYY') ); 
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Avatar',  'A marine is sent to infiltrate an alien race but ends up fighting to protect them and their planet. ', 'PG13', 'SCIFI', TO_DATE('18/12/2009','DD/MM/YYYY') ); 
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'The Fighter', 'The true story of boxer Micky Ward and his struggles to become a champion. ', 'R', 'DOCUMENTARY', TO_DATE('06/12/2010','DD/MM/YYYY') );
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'The Big Short', 'A group of investors bet against the housing market before the 2008 financial crisis. ', 'R', 'DOCUMENTARY', TO_DATE('23/12/2015','DD/MM/YYYY') ); 
+
+INSERT INTO movies (title_id, title , description ,  rating , category , release_date)
+    VALUES (title_id_seq.NEXTVAL, 'Dont Look Up', 'Two scientists attempt to warn the world of an impending comet strike, but encounter disbelief and apathy.', 'R', 'COMEDY' , TO_DATE('23/12/2022','DD/MM/YYYY') );
+
+/*----------------------------------------------------------------------------------------------------------------------------------------------------*/ 
+--INSERT STAR_BILLINGS
+INSERT INTO star_billings(actor_id, title_id , comments)
+    VALUES (1001,1, 'This actor made 10 million dollars last year!');
+
+INSERT INTO star_billings(actor_id, title_id , comments)    
+    VALUES (1001,2, 'This actor won a grammy and made 20 million this year!');
+
+INSERT INTO star_billings(actor_id, title_id , comments)    
+    VALUES (1001,3, NULL);
+
+INSERT INTO star_billings(actor_id, title_id , comments)    
+    VALUES (1002,4, 'This actor did not fare well this past decade.');
+
+INSERT INTO star_billings(actor_id, title_id , comments)    
+    VALUES (1003,5, 'This actor made 1 million and is still going');
+
+INSERT INTO star_billings(actor_id, title_id , comments)    
+    VALUES (1004,6, 'NULL');
+/*----------------------------------------------------------------------------------------------------------------------------------------------------*/ 
+--INSERT MEDIA
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'DVD',1);
+
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'VHS',1);
+
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'DVD',2);
+
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'VHS',2); 
+
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'DVD',3);
+
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'VHS',3);
+
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'DVD',4);
+
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'VHS',4);
+
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'DVD',5);
+
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'VHS',5);
+
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'DVD',6);
+
+INSERT INTO media(media_id, format , title_id)
+    VALUES (media_id_seq.NEXTVAL,'VHS',6);
+/*----------------------------------------------------------------------------------------------------------------------------------------------------*/ 
+--INSERT CUSTOMERS
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Garcia', 'Juan', '(480) 123-4567', '123 Main St', 'Dallas', 'TX', 'juan.garcia@gmail.com', '(480) 123-4567');
+    
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Smith', 'John', '(757) 234-5678', '4617 Oak Ave', 'Phoenix', 'AZ', 'john.smith@gmail.com', '(517) 890-4581');
+  
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Hernandez', 'Maria', '(412) 345-6789', '789 Calle 5 de Mayo', 'San Diego', 'CA', 'maria.hernandez@gmail.com', '(412) 345-6789');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Johnson', 'Emily', '(907) 456-7890', '3761 Bourbon St ', 'Phoenix', 'AZ', 'emily.johnson@gmail.com', '(480) 871-9210');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Martinez', 'Jose', '(480) 567-8901', '6548 Elm St', 'Phoenix', 'AZ', 'jose.martinez@gmail.com', '(502) 472-9564');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Brown', 'Michael', '(480) 678-9012', '987 Maple Ave', 'Chicago', 'IL', 'michael.brown@gmail.com', '(602) 531-7913');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Gonzalez', 'Ana', '(808) 789-0123', '753 Calle del Sol', 'Miami', 'FL', 'ana.gonzalez@gmail.com', '(520) 434-6143');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Davis', 'Emma', '(520) 890-1234', '153 Primrose St', 'San Francisco', 'CA', 'emma.davis@gmail.com', '(928) 846-1134');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Rodriguez', 'Carlos', '(602) 901-2345', '2468 Luna Rd', 'New York', 'NY', 'carlo.rodriguez@gmail.com', '(928) 968-6687');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Wilson', 'Mia', '(520) 012-3456', '753 Cherry St', 'Phoenix', 'AZ', 'mia.wilson@gmail.com', '(480) 802-3478');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Bryant','Kobe', '(480) 551-7985', '1201 Garcia Way', 'Los Angeles','CA', 'kobebryant24@gmail.com', '(928) 775-4049');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'James','Lebron', '(602) 904-0156', '657 Mesa Rd', 'Los Angeles','CA', 'lebronjames23gmail.com', '(602) 870-0578');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Jordan','Michael', '(928) 420-1334', '439 Windy Way', 'Chicago','IL', 'michaeljordan@gmail.com', '(520) 443-2090');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Bird','Larry', '(520) 733-9271', '8314 Carolina Ave', 'Boston','MA', 'larrybird33gmail.com', '(480) 948-9215');
+ 
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Rodman','Dennis', '(480) 867-2898', '182 Peachtree Blvd', 'Phoenix', 'AZ', 'dennisrodman10gmail.com', '(480) 867-2898');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Oneal','Shaq', '(602) 490-7406', '2605 Cherokee Ln', 'Miami','FL', 'shaqoneal32gmail.com', '(602) 885-9320');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Yao','Ming', '(928) 572-6620', '4721 Grande Rd', 'Houston','TX', 'yaoming11gmail.com', '(480) 582-4556');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Thomas','Isiah', '(520) 631-7059', '8176 Powhatan way', 'Detroit','MI', 'isiahthomas11gmail.com', '(520) 631-7059');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Curry','Steph', '(602) 612-8613', '5405 Apache Blvd', 'San Francisco','CA', 'stephcurry0gmail.com', '(602) 665-7293');
+
+INSERT INTO customers (customer_id, last_name, first_name, home_phone, address, city, state, email, cell_phone) 
+    VALUES (customer_id_seq.NEXTVAL, 'Durant','Kevin', '(480) 681-7817', '2716 Iroqouis Rd',  'Phoenix', 'AZ', 'kevindurant35gmail.com', '(520) 296-5885');
+       
+/*----------------------------------------------------------------------------------------------------------------------------------------------------*/ 
+--INSERT RENTAL_HISTORY
+
+INSERT INTO rental_history (media_id, rental_date, customer_id,  return_date)
+    VALUES(10, TO_DATE('03/09/2023','DD/MM/YYYY'), 206, TO_DATE('05/09/2023','DD/MM/YYYY'));
+    
+INSERT INTO rental_history (media_id, rental_date, customer_id,  return_date)
+    VALUES(11, TO_DATE('23/01/2023','DD/MM/YYYY'), 204, TO_DATE('23/03/2023','DD/MM/YYYY')  );
+    
+INSERT INTO rental_history (media_id, rental_date, customer_id,  return_date)    
+    VALUES(12, TO_DATE('15/03/2023','DD/MM/YYYY'), 201, TO_DATE('15/05/2023','DD/MM/YYYY') );
+    
+INSERT INTO rental_history (media_id, rental_date, customer_id,  return_date)    
+    VALUES(13, TO_DATE('05/05/2015','DD/MM/YYYY'), 201, NULL );
+/*----------------------------------------------------------------------------------------------------------------------------------------------------*/ 
+                        /* ************** CREATE INDEX ***************
+                           *******************************************  */ 
+CREATE INDEX ctr_lat_nae_idx
+ on customers(last_name);
+ /*----------------------------------------------------------------------------------------------------------------------------------------------------*/ 
+                        /* ************** CREATE SYNONYM ***************
+                           *********************************************  */ 
+--SEARCH FOR SPECIFIC SYNONYM                           
+SELECT owner, synonym_name, table_owner, customers
+FROM  dba_synonyms
+WHERE synonym_name = 'TAB';
+
+--SEARCH FOR ALL PUBLIC SYNOYMS
+SELECT * FROM all_synonyms 
+WHERE    LENGTH(synonym_name) = 3 
+AND      OWNER = 'PUBLIC';
+
+-- CREATE SYNONYM
+CREATE SYNONYM TAB
+FOR title_unavail;
+/*----------------------------------------------------------------------------------------------------------------------------------------------------*/ 
+                        /* ************** TEST DATABASE ****************
+                           *********************************************  */
+
+SELECT * FROM actors;
+SELECT * FROM movies;
+SELECT * FROM star_billings;
+SELECT * FROM media;
+SELECT * FROM customers;
+SELECT * FROM rental_history;
+
+DESCRIBE actors;
+DESCRIBE movies;
+DESCRIBE star_billings;
+DESCRIBE media;
+DESCRIBE customers;
+DESCRIBE rental_history;
+
+ 
