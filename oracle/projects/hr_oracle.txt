@@ -15,7 +15,7 @@
     STEP 3: INSERT DATA INTO TABLES
     STEP 4: CREATE VIEWS
     STEP 5: CREATE FOREIGN KEYS 
-	STEP 6: TEST DATABASE 
+    STEP 6: TEST DATABASE 
     
   SUMMARY:
   The purpose of this database is to apply SQL concepts to create a Dummy Database. This database consists of:
